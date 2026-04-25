@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "title": "Golden Hour Sunset",
+    "type": "image",
+    "driveLink": "https://drive.google.com/file/d/YOUR_FILE_ID_HERE/view?usp=sharing",
+    "description": "A breathtaking sunset captured over the ocean horizon.",
+    "tags": ["nature", "sunset", "travel"],
+    "date": "2024-03-15",
+    "favorite": false
+  },
+  {
+    "id": "2",
+    "title": "City Lights",
+    "type": "image",
+    "driveLink": "https://drive.google.com/file/d/YOUR_FILE_ID_HERE/view?usp=sharing",
+    "description": "Night cityscape with vibrant neon reflections.",
+    "tags": ["city", "night", "urban"],
+    "date": "2024-02-20",
+    "favorite": true
+  },
+  {
+    "id": "3",
+    "title": "Vacation Highlights",
+    "type": "video",
+    "driveLink": "https://drive.google.com/file/d/YOUR_FILE_ID_HERE/view?usp=sharing",
+    "description": "Memories from our summer trip to the coast.",
+    "tags": ["travel", "vacation", "family"],
+    "date": "2024-07-01",
+    "favorite": false
+  }
+]

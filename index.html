@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Personal Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0b;
+      --surface: #111114;
+      --surface2: #18181d;
+      --border: #2a2a30;
+      --text: #e8e6e0;
+      --muted: #6b6870;
+      --accent: #c9a96e;
+      --accent2: #7c6fcd;
+      --danger: #e05c5c;
+    }
+    .light {
+      --bg: #f5f3ee;
+      --surface: #ffffff;
+      --surface2: #eeece8;
+      --border: #ddd9d0;
+      --text: #1a1814;
+      --muted: #8a8580;
+      --accent: #b8894a;
+      --accent2: #5a4fb8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+      overflow-x: hidden;
+    }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* Typography */
+    .display { font-family: 'Cormorant Garamond', serif; }
+    .mono { font-family: 'DM Mono', monospace; }
+
+    /* Header */
+    .site-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      transition: all 0.3s;
+    }
+    .header-inner {
+      max-width: 1400px; margin: 0 auto;
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem; font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .logo-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+    .nav-actions { display: flex; align-items: center; gap: 1rem; }
+    .btn-icon {
+      width: 38px; height: 38px; border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+    .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Search bar */
+    .search-bar {
+      position: relative; flex: 1; max-width: 360px;
+    }
+    .search-bar input {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.5rem 1rem 0.5rem 2.5rem;
+      font-size: 0.85rem; color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      transition: border 0.2s;
+      outline: none;
+    }
+    .search-bar input:focus { border-color: var(--accent); }
+    .search-bar input::placeholder { color: var(--muted); }
+    .search-icon {
+      position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%);
+      color: var(--muted); font-size: 0.9rem; pointer-events: none;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed; top: 64px; left: 0; bottom: 0; width: 240px;
+      background: var(--surface); border-right: 1px solid var(--border);
+      padding: 1.5rem 1rem;
+      overflow-y: auto;
+      transition: transform 0.3s;
+      z-index: 90;
+    }
+    .sidebar-section { margin-bottom: 2rem; }
+    .sidebar-label {
+      font-size: 0.65rem; font-weight: 500; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--muted);
+      padding: 0 0.5rem; margin-bottom: 0.5rem;
+      font-family: 'DM Mono', monospace;
+    }
+    .sidebar-btn {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.5rem 0.75rem; border-radius: 7px;
+      cursor: pointer; border: none; background: transparent;
+      color: var(--text); font-size: 0.875rem; width: 100%; text-align: left;
+      transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+    }
+    .sidebar-btn:hover { background: var(--surface2); }
+    .sidebar-btn.active { background: var(--accent); color: #0a0a0b; font-weight: 500; }
+    .sidebar-btn .count {
+      margin-left: auto; font-size: 0.72rem; color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+    .sidebar-btn.active .count { color: rgba(10,10,11,0.6); }
+    .tag-cloud { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0 0.25rem; }
+    .tag-pill {
+      font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 100px;
+      border: 1px solid var(--border); cursor: pointer;
+      transition: all 0.15s; color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+    .tag-pill:hover, .tag-pill.active { border-color: var(--accent); color: var(--accent); }
+
+    /* Main content */
+    .main-content {
+      margin-left: 240px; padding-top: 64px;
+      min-height: 100vh; transition: margin 0.3s;
+    }
+    .content-area { padding: 2rem; max-width: 1200px; }
+
+    /* Hero strip */
+    .hero-strip {
+      padding: 2.5rem 0 1.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 300; line-height: 1.1;
+      letter-spacing: -0.02em; color: var(--text);
+    }
+    .hero-title em { font-style: italic; color: var(--accent); }
+    .hero-meta {
+      margin-top: 0.75rem; font-size: 0.8rem;
+      color: var(--muted); font-family: 'DM Mono', monospace;
+      letter-spacing: 0.05em;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    .filter-tabs { display: flex; gap: 0.25rem; }
+    .filter-tab {
+      padding: 0.4rem 1rem; border-radius: 6px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--muted); font-size: 0.8rem; cursor: pointer;
+      transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+    }
+    .filter-tab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+    .sort-select {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: 0.4rem 0.75rem; border-radius: 6px;
+      font-size: 0.8rem; cursor: pointer; outline: none;
+      font-family: 'DM Sans', sans-serif; margin-left: auto;
+    }
+    .view-btns { display: flex; gap: 0.25rem; }
+    .view-btn {
+      width: 32px; height: 32px; border-radius: 6px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--muted); cursor: pointer; display: flex;
+      align-items: center; justify-content: center; font-size: 0.9rem;
+      transition: all 0.15s;
+    }
+    .view-btn.active { background: var(--surface2); color: var(--text); border-color: var(--text); }
+
+    /* Gallery grid */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .gallery-grid.list-view {
+      grid-template-columns: 1fr;
+    }
+    .gallery-grid.large-view {
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    }
+
+    /* Media card */
+    .media-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      cursor: pointer; transition: all 0.25s;
+      animation: fadeUp 0.4s ease both;
+      position: relative;
+    }
+    .media-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .media-card:nth-child(1) { animation-delay: 0.05s; }
+    .media-card:nth-child(2) { animation-delay: 0.1s; }
+    .media-card:nth-child(3) { animation-delay: 0.15s; }
+    .media-card:nth-child(4) { animation-delay: 0.2s; }
+    .media-card:nth-child(5) { animation-delay: 0.25s; }
+    .media-card:nth-child(6) { animation-delay: 0.3s; }
+
+    .card-thumb {
+      width: 100%; aspect-ratio: 4/3; overflow: hidden;
+      background: var(--surface2); position: relative;
+    }
+    .card-thumb img, .card-thumb iframe {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .media-card:hover .card-thumb img { transform: scale(1.05); }
+    .card-type-badge {
+      position: absolute; top: 0.6rem; left: 0.6rem;
+      background: rgba(10,10,11,0.75); backdrop-filter: blur(6px);
+      border-radius: 5px; padding: 0.2rem 0.5rem;
+      font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;
+      font-family: 'DM Mono', monospace; color: var(--accent);
+    }
+    .card-fav {
+      position: absolute; top: 0.6rem; right: 0.6rem;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(10,10,11,0.65); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+      border: none; color: var(--muted);
+    }
+    .card-fav.active { color: var(--danger); }
+    .card-fav:hover { transform: scale(1.15); }
+    .card-body { padding: 0.875rem 1rem 1rem; }
+    .card-title {
+      font-size: 0.9rem; font-weight: 500; color: var(--text);
+      margin-bottom: 0.3rem; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .card-desc {
+      font-size: 0.78rem; color: var(--muted); line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 0.75rem; padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+    .card-date { font-size: 0.7rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+    .card-tags { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+    .card-tag {
+      font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 100px;
+      background: var(--surface2); color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* List view card */
+    .gallery-grid.list-view .media-card {
+      display: flex; flex-direction: row;
+    }
+    .gallery-grid.list-view .card-thumb {
+      width: 180px; min-width: 180px; aspect-ratio: auto; height: 120px;
+    }
+    .gallery-grid.list-view .card-body {
+      flex: 1; display: flex; flex-direction: column; justify-content: center;
+    }
+
+    /* Lightbox */
+    .lightbox-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(5,5,7,0.97); backdrop-filter: blur(20px);
+      display: flex; align-items: center; justify-content: center;
+      animation: fadeIn 0.25s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .lightbox-inner {
+      position: relative; max-width: 92vw; max-height: 92vh;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .lightbox-media {
+      max-width: 100%; max-height: 75vh; border-radius: 8px; object-fit: contain;
+    }
+    .lightbox-iframe {
+      width: 80vw; height: 56.25vw; max-height: 75vh; border-radius: 8px; border: none;
+    }
+    .lightbox-info {
+      margin-top: 1rem; text-align: center; max-width: 600px;
+    }
+    .lightbox-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 1.4rem;
+      font-weight: 400; color: var(--text);
+    }
+    .lightbox-desc { font-size: 0.82rem; color: var(--muted); margin-top: 0.35rem; }
+    .lightbox-close {
+      position: fixed; top: 1.5rem; right: 1.5rem;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); cursor: pointer; display: flex;
+      align-items: center; justify-content: center; font-size: 1.2rem;
+      transition: all 0.2s; z-index: 201;
+    }
+    .lightbox-close:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
+    .lightbox-nav {
+      position: fixed; top: 50%; transform: translateY(-50%);
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); cursor: pointer; display: flex;
+      align-items: center; justify-content: center; font-size: 1.1rem;
+      transition: all 0.2s; z-index: 201;
+    }
+    .lightbox-nav:hover { border-color: var(--accent); color: var(--accent); }
+    .lightbox-prev { left: 1.5rem; }
+    .lightbox-next { right: 1.5rem; }
+
+    /* Add media modal */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(5,5,7,0.85); backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center;
+      animation: fadeIn 0.2s ease;
+      padding: 1rem;
+    }
+    .modal-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2rem;
+      width: 100%; max-width: 520px;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 1.6rem;
+      margin-bottom: 1.5rem; color: var(--text);
+    }
+    .form-group { margin-bottom: 1rem; }
+    .form-label {
+      display: block; font-size: 0.75rem; color: var(--muted);
+      margin-bottom: 0.35rem; font-family: 'DM Mono', monospace;
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .form-input, .form-textarea, .form-select {
+      width: 100%; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.6rem 0.875rem; color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
+      outline: none; transition: border 0.2s;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: var(--accent);
+    }
+    .form-textarea { resize: vertical; min-height: 80px; }
+    .form-select { appearance: none; cursor: pointer; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+    .btn-primary {
+      flex: 1; padding: 0.65rem 1.5rem; border-radius: 8px;
+      background: var(--accent); border: none; color: #0a0a0b;
+      font-weight: 500; font-size: 0.875rem; cursor: pointer;
+      transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+    }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-secondary {
+      padding: 0.65rem 1.25rem; border-radius: 8px;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text); font-size: 0.875rem; cursor: pointer;
+      transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+    }
+    .btn-secondary:hover { border-color: var(--text); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 5rem 2rem;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+    .empty-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 1.5rem;
+      color: var(--text); margin-bottom: 0.5rem;
+    }
+    .empty-sub { font-size: 0.85rem; line-height: 1.6; }
+
+    /* Stats bar */
+    .stats-bar {
+      display: flex; gap: 2rem; padding: 1rem 0;
+      border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;
+    }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif; font-size: 1.75rem;
+      color: var(--accent); font-weight: 300; line-height: 1;
+    }
+    .stat-label { font-size: 0.68rem; color: var(--muted); margin-top: 0.2rem;
+      font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em;
+    }
+
+    /* Slideshow mode */
+    .slideshow-overlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .slideshow-img {
+      max-width: 100%; max-height: 100vh; object-fit: contain;
+      animation: ssIn 0.6s ease;
+    }
+    @keyframes ssIn { from { opacity: 0; } to { opacity: 1; } }
+    .slideshow-ui {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 1rem;
+      background: rgba(10,10,11,0.7); backdrop-filter: blur(10px);
+      border: 1px solid var(--border); border-radius: 100px;
+      padding: 0.5rem 1.25rem;
+    }
+    .ss-btn {
+      background: none; border: none; color: var(--text);
+      cursor: pointer; font-size: 1rem; transition: color 0.2s;
+    }
+    .ss-btn:hover { color: var(--accent); }
+    .ss-counter { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted); }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .search-bar { max-width: 200px; }
+    }
+    @media (max-width: 640px) {
+      .content-area { padding: 1rem; }
+      .header-inner { padding: 0 1rem; }
+      .hero-title { font-size: 2rem; }
+      .stats-bar { gap: 1rem; }
+      .form-row { grid-template-columns: 1fr; }
+      .lightbox-prev { left: 0.5rem; }
+      .lightbox-next { right: 0.5rem; }
+    }
+
+    /* Placeholder shimmer */
+    .shimmer {
+      background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.75rem 1.25rem;
+      font-size: 0.85rem; color: var(--text);
+      animation: toastIn 0.3s ease;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    // ─── Google Drive helpers ───────────────────────────────────────────────
+    function toDriveEmbedUrl(link, type) {
+      // Accept: drive.google.com/file/d/FILE_ID/view or /open?id=FILE_ID
+      const fileIdMatch = link.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
+                          link.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (!fileIdMatch) return link; // fallback to raw link
+      const id = fileIdMatch[1];
+      if (type === 'video') return `https://drive.google.com/file/d/${id}/preview`;
+      // For images, use thumbnail URL (works for public files)
+      return `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
+    }
+
+    function toDriveDownloadUrl(link) {
+      const fileIdMatch = link.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
+                          link.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (!fileIdMatch) return link;
+      return `https://drive.google.com/uc?export=download&id=${fileIdMatch[1]}`;
+    }
+
+    // ─── Sample data ────────────────────────────────────────────────────────
+    const SAMPLE_ITEMS = [
+      {
+        id: '1', title: 'Golden Hour Sunset', type: 'image',
+        driveLink: 'https://drive.google.com/file/d/1bx7RnwrMC7cQIvRLbJn3R7VRXQ1Y6gXF/view',
+        description: 'A breathtaking sunset captured over the ocean horizon.',
+        tags: ['nature', 'sunset', 'travel'], date: '2024-03-15',
+        favorite: false,
+        // Fallback placeholder for demo
+        placeholder: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80'
+      },
+      {
+        id: '2', title: 'City Lights', type: 'image',
+        driveLink: 'https://drive.google.com/file/d/1bx7RnwrMC7cQIvRLbJn3R7VRXQ1Y6gXF/view',
+        description: 'Night cityscape with vibrant neon reflections.',
+        tags: ['city', 'night', 'urban'], date: '2024-02-20',
+        favorite: true,
+        placeholder: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=80'
+      },
+      {
+        id: '3', title: 'Forest Morning', type: 'image',
+        driveLink: 'https://drive.google.com/file/d/1bx7RnwrMC7cQIvRLbJn3R7VRXQ1Y6gXF/view',
+        description: 'Mist rolling through ancient pine trees at dawn.',
+        tags: ['nature', 'forest', 'morning'], date: '2024-01-10',
+        favorite: false,
+        placeholder: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80'
+      },
+      {
+        id: '4', title: 'Vacation Highlights', type: 'video',
+        driveLink: 'https://drive.google.com/file/d/1bx7RnwrMC7cQIvRLbJn3R7VRXQ1Y6gXF/view',
+        description: 'Memories from our summer trip to the coast.',
+        tags: ['travel', 'vacation', 'family'], date: '2024-07-01',
+        favorite: false,
+        placeholder: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80'
+      },
+      {
+        id: '5', title: 'Mountain Peak', type: 'image',
+        driveLink: 'https://drive.google.com/file/d/1bx7RnwrMC7cQIvRLbJn3R7VRXQ1Y6gXF/view',
+        description: 'Summit view with clouds below and infinite sky above.',
+        tags: ['mountains', 'travel', 'adventure'], date: '2023-11-05',
+        favorite: false,
+        placeholder: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80'
+      },
+      {
+        id: '6', title: 'Garden in Bloom', type: 'image',
+        driveLink: 'https://drive.google.com/file/d/1bx7RnwrMC7cQIvRLbJn3R7VRXQ1Y6gXF/view',
+        description: 'Spring blooms in the backyard garden.',
+        tags: ['nature', 'flowers', 'garden'], date: '2024-04-22',
+        favorite: true,
+        placeholder: 'https://images.unsplash.com/photo-1490750967868-88df5691cc69?w=800&q=80'
+      },
+    ];
+
+    const ALL_TAGS = ['nature', 'sunset', 'travel', 'city', 'night', 'urban', 'forest', 'morning', 'vacation', 'family', 'mountains', 'adventure', 'flowers', 'garden'];
+
+    // ─── Toast ──────────────────────────────────────────────────────────────
+    function Toast({ msg, onDone }) {
+      useEffect(() => { const t = setTimeout(onDone, 2500); return () => clearTimeout(t); }, []);
+      return <div className="toast">✓ {msg}</div>;
+    }
+
+    // ─── Lightbox ───────────────────────────────────────────────────────────
+    function Lightbox({ item, onClose, onPrev, onNext, hasPrev, hasNext }) {
+      useEffect(() => {
+        const handler = e => {
+          if (e.key === 'Escape') onClose();
+          if (e.key === 'ArrowLeft' && hasPrev) onPrev();
+          if (e.key === 'ArrowRight' && hasNext) onNext();
+        };
+        window.addEventListener('keydown', handler);
+        return () => window.removeEventListener('keydown', handler);
+      }, [hasPrev, hasNext]);
+
+      const isVideo = item.type === 'video';
+
+      return (
+        <div className="lightbox-overlay" onClick={onClose}>
+          <button className="lightbox-close" onClick={onClose}>✕</button>
+          {hasPrev && <button className="lightbox-nav lightbox-prev" onClick={e=>{e.stopPropagation();onPrev();}}>‹</button>}
+          {hasNext && <button className="lightbox-nav lightbox-next" onClick={e=>{e.stopPropagation();onNext();}}>›</button>}
+          <div className="lightbox-inner" onClick={e=>e.stopPropagation()}>
+            {isVideo ? (
+              <iframe
+                className="lightbox-iframe"
+                src={toDriveEmbedUrl(item.driveLink, 'video')}
+                allow="autoplay"
+                allowFullScreen
+              />
+            ) : (
+              <img
+                className="lightbox-media"
+                src={item.placeholder || toDriveEmbedUrl(item.driveLink, 'image')}
+                alt={item.title}
+              />
+            )}
+            <div className="lightbox-info">
+              <div className="lightbox-title">{item.title}</div>
+              {item.description && <div className="lightbox-desc">{item.description}</div>}
+              <div style={{marginTop:'0.75rem', display:'flex', gap:'0.5rem', justifyContent:'center', flexWrap:'wrap'}}>
+                {item.tags.map(t => <span key={t} className="card-tag">{t}</span>)}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ─── Add/Edit Modal ─────────────────────────────────────────────────────
+    function MediaModal({ item, onClose, onSave }) {
+      const [form, setForm] = useState(item || {
+        title:'', description:'', type:'image', driveLink:'', tags:'', date: new Date().toISOString().slice(0,10)
+      });
+      const set = (k, v) => setForm(f => ({...f, [k]: v}));
+
+      const handleSave = () => {
+        if (!form.title || !form.driveLink) { alert('Title and Drive link are required.'); return; }
+        const tagsArr = typeof form.tags === 'string'
+          ? form.tags.split(',').map(t=>t.trim()).filter(Boolean)
+          : form.tags;
+        onSave({ ...form, tags: tagsArr, id: form.id || Date.now().toString(), favorite: form.favorite || false });
+        onClose();
+      };
+
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal-card" onClick={e=>e.stopPropagation()}>
+            <div className="modal-title">{item ? 'Edit Media' : 'Add Media'}</div>
+
+            <div className="form-group">
+              <label className="form-label">Title *</label>
+              <input className="form-input" value={form.title} onChange={e=>set('title',e.target.value)} placeholder="My photo or video title" />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Google Drive Share Link *</label>
+              <input className="form-input" value={form.driveLink} onChange={e=>set('driveLink',e.target.value)}
+                placeholder="https://drive.google.com/file/d/FILE_ID/view" />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Type</label>
+                <select className="form-select" value={form.type} onChange={e=>set('type',e.target.value)}>
+                  <option value="image">🖼 Image</option>
+                  <option value="video">🎬 Video</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Date</label>
+                <input className="form-input" type="date" value={form.date} onChange={e=>set('date',e.target.value)} />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Description</label>
+              <textarea className="form-textarea" value={form.description} onChange={e=>set('description',e.target.value)} placeholder="A short description..." />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Tags (comma-separated)</label>
+              <input className="form-input" value={typeof form.tags==='string' ? form.tags : form.tags.join(', ')}
+                onChange={e=>set('tags',e.target.value)} placeholder="nature, sunset, travel" />
+            </div>
+
+            <div className="form-group" style={{background:'var(--surface2)',borderRadius:'8px',padding:'0.75rem',fontSize:'0.78rem',color:'var(--muted)',lineHeight:1.6}}>
+              <strong style={{color:'var(--accent)'}}>💡 Google Drive Tip:</strong> Open your file in Drive → Share → "Anyone with the link can view" → Copy link and paste above.
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={onClose}>Cancel</button>
+              <button className="btn-primary" onClick={handleSave}>Save Media</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ─── Media Card ─────────────────────────────────────────────────────────
+    function MediaCard({ item, view, onOpen, onFav, onEdit, onDelete }) {
+      const [imgErr, setImgErr] = useState(false);
+      const thumbSrc = item.placeholder || toDriveEmbedUrl(item.driveLink, 'image');
+
+      return (
+        <div className="media-card" onClick={()=>onOpen(item)}>
+          <div className="card-thumb">
+            {item.type === 'image' ? (
+              imgErr
+                ? <div className="shimmer" style={{width:'100%',height:'100%'}} />
+                : <img src={thumbSrc} alt={item.title} loading="lazy" onError={()=>setImgErr(true)} />
+            ) : (
+              <div style={{position:'relative',width:'100%',height:'100%',background:'var(--surface2)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <img src={item.placeholder || thumbSrc} alt={item.title} loading="lazy"
+                  style={{width:'100%',height:'100%',objectFit:'cover',opacity:0.6}} onError={()=>{}} />
+                <div style={{position:'absolute',width:48,height:48,borderRadius:'50%',
+                  background:'rgba(201,169,110,0.9)',display:'flex',alignItems:'center',justifyContent:'center',
+                  fontSize:'1.2rem'}}>▶</div>
+              </div>
+            )}
+            <span className="card-type-badge">{item.type === 'video' ? '● Video' : '◆ Image'}</span>
+            <button className={`card-fav${item.favorite?' active':''}`}
+              onClick={e=>{e.stopPropagation();onFav(item.id);}}>
+              {item.favorite ? '♥' : '♡'}
+            </button>
+          </div>
+
+          <div className="card-body">
+            <div className="card-title">{item.title}</div>
+            {item.description && <div className="card-desc">{item.description}</div>}
+            <div className="card-footer">
+              <div className="card-date">{item.date}</div>
+              <div className="card-tags">
+                {item.tags.slice(0,2).map(t=><span key={t} className="card-tag">{t}</span>)}
+              </div>
+            </div>
+            {/* Admin actions */}
+            <div style={{display:'flex',gap:'0.4rem',marginTop:'0.6rem'}} onClick={e=>e.stopPropagation()}>
+              <button onClick={()=>onEdit(item)}
+                style={{fontSize:'0.7rem',padding:'0.2rem 0.6rem',borderRadius:'5px',border:'1px solid var(--border)',
+                  background:'transparent',color:'var(--muted)',cursor:'pointer',fontFamily:'DM Mono'}}>Edit</button>
+              <button onClick={()=>onDelete(item.id)}
+                style={{fontSize:'0.7rem',padding:'0.2rem 0.6rem',borderRadius:'5px',border:'1px solid var(--border)',
+                  background:'transparent',color:'var(--danger)',cursor:'pointer',fontFamily:'DM Mono'}}>Delete</button>
+              <a href={toDriveDownloadUrl(item.driveLink)} target="_blank" rel="noreferrer"
+                style={{fontSize:'0.7rem',padding:'0.2rem 0.6rem',borderRadius:'5px',border:'1px solid var(--border)',
+                  background:'transparent',color:'var(--muted)',cursor:'pointer',fontFamily:'DM Mono',textDecoration:'none'}}>↓</a>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ─── Slideshow ──────────────────────────────────────────────────────────
+    function Slideshow({ items, onClose }) {
+      const [idx, setIdx] = useState(0);
+      const [playing, setPlaying] = useState(true);
+      const intervalRef = useRef();
+      const imageItems = items.filter(i => i.type === 'image');
+
+      useEffect(() => {
+        if (playing) {
+          intervalRef.current = setInterval(() => {
+            setIdx(i => (i + 1) % imageItems.length);
+          }, 3500);
+        }
+        return () => clearInterval(intervalRef.current);
+      }, [playing, imageItems.length]);
+
+      const item = imageItems[idx];
+      if (!item) return null;
+
+      return (
+        <div className="slideshow-overlay">
+          <img className="slideshow-img" key={item.id}
+            src={item.placeholder || toDriveEmbedUrl(item.driveLink,'image')} alt={item.title} />
+          <div style={{position:'fixed',top:'2rem',left:'50%',transform:'translateX(-50%)',
+            background:'rgba(0,0,0,0.6)',borderRadius:'8px',padding:'0.5rem 1.5rem',textAlign:'center'}}>
+            <div style={{fontFamily:'Cormorant Garamond',fontSize:'1.2rem',color:'#fff'}}>{item.title}</div>
+          </div>
+          <div className="slideshow-ui">
+            <button className="ss-btn" onClick={()=>setIdx(i=>(i-1+imageItems.length)%imageItems.length)}>‹</button>
+            <button className="ss-btn" onClick={()=>setPlaying(p=>!p)}>{playing ? '⏸' : '▶'}</button>
+            <span className="ss-counter">{idx+1} / {imageItems.length}</span>
+            <button className="ss-btn" onClick={()=>setIdx(i=>(i+1)%imageItems.length)}>›</button>
+            <button className="ss-btn" onClick={onClose} style={{marginLeft:'0.5rem',color:'#e05c5c'}}>✕</button>
+          </div>
+        </div>
+      );
+    }
+
+    // ─── App ────────────────────────────────────────────────────────────────
+    function App() {
+      const [items, setItems] = useState(SAMPLE_ITEMS);
+      const [dark, setDark] = useState(true);
+      const [search, setSearch] = useState('');
+      const [filterType, setFilterType] = useState('all');
+      const [filterTag, setFilterTag] = useState('');
+      const [filterFav, setFilterFav] = useState(false);
+      const [sortBy, setSortBy] = useState('date-desc');
+      const [viewMode, setViewMode] = useState('grid');
+      const [lightbox, setLightbox] = useState(null);
+      const [showAdd, setShowAdd] = useState(false);
+      const [editItem, setEditItem] = useState(null);
+      const [slideshow, setSlideshow] = useState(false);
+      const [toast, setToast] = useState('');
+      const [sidebarOpen, setSidebarOpen] = useState(false);
+
+      // Theme
+      useEffect(() => {
+        document.body.className = dark ? '' : 'light';
+      }, [dark]);
+
+      // Filter + search + sort
+      const filtered = items
+        .filter(i => {
+          if (filterType !== 'all' && i.type !== filterType) return false;
+          if (filterTag && !i.tags.includes(filterTag)) return false;
+          if (filterFav && !i.favorite) return false;
+          if (search) {
+            const q = search.toLowerCase();
+            return i.title.toLowerCase().includes(q) ||
+              i.description?.toLowerCase().includes(q) ||
+              i.tags.some(t=>t.includes(q));
+          }
+          return true;
+        })
+        .sort((a,b) => {
+          if (sortBy === 'date-desc') return b.date.localeCompare(a.date);
+          if (sortBy === 'date-asc') return a.date.localeCompare(b.date);
+          if (sortBy === 'title') return a.title.localeCompare(b.title);
+          return 0;
+        });
+
+      const lbIdx = lightbox ? filtered.findIndex(i=>i.id===lightbox.id) : -1;
+
+      const showToast = msg => { setToast(msg); };
+
+      const handleSave = item => {
+        setItems(prev => {
+          const exists = prev.find(i=>i.id===item.id);
+          if (exists) return prev.map(i=>i.id===item.id?item:i);
+          return [item, ...prev];
+        });
+        showToast(editItem ? 'Media updated!' : 'Media added!');
+        setEditItem(null);
+      };
+
+      const handleDelete = id => {
+        if (!confirm('Delete this item?')) return;
+        setItems(prev => prev.filter(i=>i.id!==id));
+        showToast('Item deleted.');
+      };
+
+      const toggleFav = id => {
+        setItems(prev => prev.map(i=>i.id===id?{...i,favorite:!i.favorite}:i));
+      };
+
+      const stats = {
+        total: items.length,
+        images: items.filter(i=>i.type==='image').length,
+        videos: items.filter(i=>i.type==='video').length,
+        favs: items.filter(i=>i.favorite).length,
+      };
+
+      const allTags = [...new Set(items.flatMap(i=>i.tags))];
+
+      return (
+        <>
+          {/* Header */}
+          <header className="site-header">
+            <div className="header-inner">
+              <div style={{display:'flex',alignItems:'center',gap:'1rem'}}>
+                <button className="btn-icon" style={{display:'none'}} onClick={()=>setSidebarOpen(o=>!o)}
+                  id="menu-btn">☰</button>
+                <div className="logo">
+                  <div className="logo-dot" />
+                  My Gallery
+                </div>
+              </div>
+              <div className="search-bar">
+                <span className="search-icon">⌕</span>
+                <input value={search} onChange={e=>setSearch(e.target.value)}
+                  placeholder="Search photos, tags…" />
+              </div>
+              <div className="nav-actions">
+                <button className="btn-icon" title="Slideshow" onClick={()=>setSlideshow(true)}>▶</button>
+                <button className="btn-icon" title="Toggle theme" onClick={()=>setDark(d=>!d)}>
+                  {dark ? '☀' : '◗'}
+                </button>
+                <button onClick={()=>{setEditItem(null);setShowAdd(true);}}
+                  style={{padding:'0.45rem 1rem',borderRadius:'8px',background:'var(--accent)',border:'none',
+                    color:'#0a0a0b',fontWeight:500,fontSize:'0.85rem',cursor:'pointer',
+                    fontFamily:'DM Sans',display:'flex',alignItems:'center',gap:'0.4rem'}}>
+                  + Add Media
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* Sidebar */}
+          <aside className={`sidebar${sidebarOpen?' open':''}`}>
+            <div className="sidebar-section">
+              <div className="sidebar-label">Filter</div>
+              {[
+                {label:'All Media',val:'all',icon:'◈',count:stats.total},
+                {label:'Images',val:'image',icon:'🖼',count:stats.images},
+                {label:'Videos',val:'video',icon:'🎬',count:stats.videos},
+              ].map(f=>(
+                <button key={f.val} className={`sidebar-btn${filterType===f.val&&!filterFav?' active':''}`}
+                  onClick={()=>{setFilterType(f.val);setFilterFav(false);}}>
+                  <span>{f.icon}</span> {f.label}
+                  <span className="count">{f.count}</span>
+                </button>
+              ))}
+              <button className={`sidebar-btn${filterFav?' active':''}`}
+                onClick={()=>setFilterFav(f=>!f)}>
+                <span>♥</span> Favorites
+                <span className="count">{stats.favs}</span>
+              </button>
+            </div>
+
+            <div className="sidebar-section">
+              <div className="sidebar-label">Tags</div>
+              <div className="tag-cloud">
+                {allTags.map(tag=>(
+                  <span key={tag} className={`tag-pill${filterTag===tag?' active':''}`}
+                    onClick={()=>setFilterTag(t=>t===tag?'':tag)}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </aside>
+
+          {/* Main */}
+          <main className="main-content">
+            <div className="content-area">
+              <div className="hero-strip">
+                <h1 className="hero-title">
+                  My Personal<br /><em>Gallery</em>
+                </h1>
+                <div className="hero-meta">
+                  {stats.total} items · {stats.images} images · {stats.videos} videos · {stats.favs} favorites
+                </div>
+              </div>
+
+              {/* Toolbar */}
+              <div className="toolbar">
+                <div className="filter-tabs">
+                  {['all','image','video'].map(t=>(
+                    <button key={t} className={`filter-tab${filterType===t?' active':''}`}
+                      onClick={()=>setFilterType(t)}>
+                      {t==='all'?'All':t==='image'?'Images':'Videos'}
+                    </button>
+                  ))}
+                </div>
+                {filterFav && (
+                  <button className="filter-tab active" onClick={()=>setFilterFav(false)}>♥ Favorites ✕</button>
+                )}
+                {filterTag && (
+                  <button className="filter-tab active" onClick={()=>setFilterTag('')}>#{filterTag} ✕</button>
+                )}
+                <select className="sort-select" value={sortBy} onChange={e=>setSortBy(e.target.value)}>
+                  <option value="date-desc">Newest first</option>
+                  <option value="date-asc">Oldest first</option>
+                  <option value="title">By title</option>
+                </select>
+                <div className="view-btns">
+                  {[
+                    {v:'grid',icon:'⊞'},
+                    {v:'large',icon:'⊟'},
+                    {v:'list',icon:'≡'},
+                  ].map(({v,icon})=>(
+                    <button key={v} className={`view-btn${viewMode===v?' active':''}`} onClick={()=>setViewMode(v)}>{icon}</button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Grid */}
+              {filtered.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-icon">◈</div>
+                  <div className="empty-title">No media found</div>
+                  <div className="empty-sub">Try adjusting your filters or add new media.</div>
+                </div>
+              ) : (
+                <div className={`gallery-grid${viewMode==='list'?' list-view':viewMode==='large'?' large-view':''}`}>
+                  {filtered.map(item=>(
+                    <MediaCard key={item.id} item={item} view={viewMode}
+                      onOpen={setLightbox}
+                      onFav={toggleFav}
+                      onEdit={i=>{setEditItem(i);setShowAdd(true);}}
+                      onDelete={handleDelete} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </main>
+
+          {/* Lightbox */}
+          {lightbox && (
+            <Lightbox
+              item={lightbox}
+              onClose={()=>setLightbox(null)}
+              hasPrev={lbIdx > 0}
+              hasNext={lbIdx < filtered.length - 1}
+              onPrev={()=>setLightbox(filtered[lbIdx-1])}
+              onNext={()=>setLightbox(filtered[lbIdx+1])}
+            />
+          )}
+
+          {/* Add/Edit modal */}
+          {showAdd && (
+            <MediaModal
+              item={editItem}
+              onClose={()=>{setShowAdd(false);setEditItem(null);}}
+              onSave={handleSave}
+            />
+          )}
+
+          {/* Slideshow */}
+          {slideshow && <Slideshow items={filtered} onClose={()=>setSlideshow(false)} />}
+
+          {/* Toast */}
+          {toast && <Toast msg={toast} onDone={()=>setToast('')} />}
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
